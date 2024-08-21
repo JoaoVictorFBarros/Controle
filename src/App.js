@@ -1,23 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
+import SideBar from './components/sidebar/sidebar';
+import TransferFunction from './components/transferfunction/transferfunction'
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <SideBar/>
+      <div className='workspace'>
+        <div className='transferfunctions'>
+          <TransferFunction title='Função de transferência do sistema original' num="16" den='s² + 0.8s + 16' bg="#2191ED"/>
+          <TransferFunction title='Função de transferência controlada em malha fechada' num="3.2s² + 8s + 1.6" den='s³ + 4s² + 24s + 1.6' bg="#ED9C21"/>
+        </div>
+        <div className='graphs'>
+          <img alt='grafico 1'className='graph'/>
+          <img alt='grafico 2'className='graph'/>
+          <img alt='grafico 3'className='graph'/>
+
+        </div>
+        <button className='downloadbutton'>Download</button>
+      </div>
     </div>
   );
 }

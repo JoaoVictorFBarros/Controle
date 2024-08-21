@@ -1,0 +1,87 @@
+.sidebar{
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+.logo{
+    transform: scale(1.25);
+    margin: 5vh;
+    cursor: pointer;
+}
+
+.sidebaroptions{
+    padding-top: 20%;
+}
+
+.sidebaroption{
+    color: white;
+    padding: 15% 5% 15% 5%;
+    transition: 300ms;
+    cursor: pointer;
+    border-radius: 2vh;
+}
+
+.activesidebaroption{
+    color: #ED9C21;
+    padding: 15% 5% 15% 5%;
+}
+
+.activesidebaroption .sidebaroptionsubtitle{
+    color: white;
+    transition: 200ms;
+    cursor: pointer;
+}
+
+.activesidebaroption .sidebaroptionsubtitle:hover{
+    border-left: solid 0.5vh #ED9C21;
+}
+
+.sidebaroption:hover{
+    background-color: #465C6E;
+    ;
+}
+
+.sidebaroptionsubtitle{
+    padding-top: 2.5vh;
+    padding-bottom: 2.5vh;
+    padding-left: 2vh;
+    margin-top: 2vh;
+    font-size: small;
+    display: none;
+}
+
+.sidebarparameter{
+    padding-top: 2.5vh;
+    padding-left: 1vh;
+    font-size: smaller;
+    display: none;
+    color: white;
+}
+
+.sidebarinput{
+    margin-left: 1vh;
+    width: 20%;
+    border: none;
+    border-bottom: 2px solid white; 
+    outline: none;
+    background-color: transparent;
+    color: white;
+
+    text-align: center;
+}
+
+.activesidebaroptionsubtitle{
+    color: #2191ED !important;
+    border-left: solid 0.5vh #465C6E !important;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/*Firefox */
+input[type="number"] {
+    appearance:initial;
+    -moz-appearance: textfield;
+}
