@@ -26,9 +26,9 @@
 }
 
 .graph{
-  width: 400px;
-  height: 225px;
-  border: solid 2px;
+  width: 50vh;
+  height: 25vh;
+  border: solid thin;
 }
 
 .downloadbutton{
