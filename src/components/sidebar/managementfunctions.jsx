@@ -23,9 +23,6 @@ export function opensubmenu(name, supername){
 }
 
 export function opensubsubmenu(name, supername){
-
-    restartmenu('activesidebaroptionsubtitle','sidebaroptionsubtitle')
-
     const elements = document.getElementsByClassName(name)
 
     Array.from(elements).forEach((element) => {        

@@ -5,57 +5,114 @@ import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend);
 
-const Graph = ({
+const CircleBackgroundPlugin = {
+  id: 'circleBackground',
+  beforeDraw: (chart, args, options) => { 
+    if (!options.radius) return;
+
+    const { ctx, chartArea } = chart;
+    const { left, top, right, bottom } = chartArea;
+    const width = right - left;
+    const height = bottom - top;
+    const radius = Math.min(width, height) / 4;
+    const centerX = (left + right) / 2;
+    const centerY = (top + bottom) / 2;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.lineWidth = 2; 
+    ctx.stroke();
+    ctx.restore();
+  },
+};
+
+const CustomPointLabelsPlugin = {
+  id: 'customPointLabels',
+  afterDatasetsDraw: (chart, args, options) => {
+    const { ctx } = chart;
+    const meta = chart.getDatasetMeta(0);
+    const points = meta.data;
+    const { pointLabels } = options; 
+
+    if (pointLabels && pointLabels.length === points.length) {
+      points.forEach((point, index) => {
+        const label = pointLabels[index];
+        if (label) {
+          ctx.save();
+          ctx.font = '10px Arial';
+          ctx.fillStyle = 'black';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(label, point.x, point.y);
+          ctx.restore();
+        }
+      });
+    }
+  },
+};
+
+function Graph({
   className,
   title = 'Dynamic Data Updates',
   xAxisLabel = 'X-Axis',
   yAxisLabel = 'Y-Axis',
-  xScale = { min: 0, max: 10 },
-  yScale = { min: 0, max: 100 },
-  windowSize = 10, 
-  updateInterval = 2000, 
-  lineColor = 'rgba(75,192,192,1)'
-}) => {
+  lineColor = 'rgba(0,0,0,1)',
+  xData = [],
+  yData = [],
+  xDecimalPlaces = 2,
+  yDecimalPlaces = 4,
+  printLine = true,
+  xlabel = [],
+  scale = true,
+  radius,
+  pointLabels = [], 
+}) {
+  const truncateToDecimals = (num, decimals) => parseFloat(num.toFixed(decimals));
+
   const [data, setData] = useState({
-    labels: [],
+    labels: xlabel.length > 0 ? xlabel : xData.map(value => truncateToDecimals(value, xDecimalPlaces)),
     datasets: [
       {
         label: 'Dynamic Data',
-        data: [],
+        data: yData.length > 0 ? yData.map(value => truncateToDecimals(value, yDecimalPlaces)) : [],
         fill: false,
-        backgroundColor: 'rgba(75,192,192,0.6)',
+        backgroundColor: 'transparent',
         borderColor: lineColor,
+        pointRadius: 0,
+        borderWidth: printLine ? 2 : 0,
       },
     ],
   });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setData(prevData => {
-        const newData = [...prevData.datasets[0].data, Math.floor(Math.random() * 100)];
-        const newLabels = [...prevData.labels, `${prevData.labels.length + 1}`];
-
-        if (newData.length > windowSize) {
-          newData.shift();
-          newLabels.shift();
-        }
-
-        return {
-          labels: newLabels,
-          datasets: [
-            {
-              ...prevData.datasets[0],
-              data: newData,
-            },
-          ],
-        };
+    const truncatedXData = xData.map(value => truncateToDecimals(value, xDecimalPlaces));
+    const truncatedYData = yData.map(value => truncateToDecimals(value, yDecimalPlaces));
+  
+    const hasDataChanged = JSON.stringify(truncatedXData) !== JSON.stringify(data.labels) ||
+                           JSON.stringify(truncatedYData) !== JSON.stringify(data.datasets[0]?.data);
+  
+    if (hasDataChanged) {
+      setData({
+        labels: xlabel.length > 0 ? xlabel : truncatedXData,
+        datasets: [
+          {
+            label: 'Dynamic Data',
+            data: truncatedYData,
+            fill: false,
+            backgroundColor: 'transparent',
+            borderColor: lineColor,
+            pointRadius: 0,
+            borderWidth: printLine ? 2 : 0,
+          },
+        ],
       });
-    }, updateInterval);
-
-    return () => clearInterval(interval);
-  }, [windowSize, updateInterval]);
-
+    }
+  }, [xData, yData, lineColor, xDecimalPlaces, yDecimalPlaces, printLine, xlabel, data]);
+  
   const options = {
+    maintainAspectRatio: false,
     responsive: true,
     plugins: {
       legend: {
@@ -65,37 +122,47 @@ const Graph = ({
         display: true,
         text: title,
       },
+      customPointLabels: {
+        pointLabels: pointLabels.length === xData.length ? pointLabels : null,
+      },
+      circleBackground: radius ? { radius } : null,
     },
     scales: {
       x: {
+        type: scale === false ? 'linear' : 'category', 
         title: {
           display: true,
           text: xAxisLabel,
         },
-        min: xScale.min,
-        max: xScale.max,
-        ticks: {
-          callback: function(value) {
-            return value >= xScale.min && value <= xScale.max ? value : '';
-          }
-        }
+        min: scale === false ? -2 : undefined, 
+        max: scale === false ? 2 : undefined,  
       },
       y: {
+        type: scale === false ? 'linear' : 'linear', 
         title: {
           display: true,
           text: yAxisLabel,
         },
-        min: yScale.min,
-        max: yScale.max,
+        min: scale === false ? -2 : undefined, 
+        max: scale === false ? 2 : undefined,  
       },
     },
   };
 
+  const plugins = [CustomPointLabelsPlugin];
+  if (radius) {    
+    plugins.push(CircleBackgroundPlugin);
+  }
+
   return (
     <div className={className}>
-      <Line data={data} options={options} />
+      <Line
+        data={data}
+        options={options}
+        plugins={plugins}
+      />
     </div>
   );
-};
+}
 
 export default Graph;

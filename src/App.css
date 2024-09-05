@@ -23,11 +23,18 @@
 .graphs{
   display: flex;
   justify-content: space-around;
+  align-items: center;
 }
 
 .graph{
   width: 50vh;
   height: 25vh;
+  border: solid thin;
+}
+
+.highgraph{
+  width: 50vh;
+  height: 50vh;
   border: solid thin;
 }
 
