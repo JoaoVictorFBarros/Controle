@@ -8,10 +8,15 @@ function SideBar(props) {
     const [sampling, setSampling] = useState(0.1);
     const [gain, setGain] = useState(1);
     const [tau, setTau] = useState(1);
+    const [ksi,setKsi] = useState(1);
+    const [omn, setOmn] = useState(1);
     const [controlType, setControlType] = useState('P');
+    const [order, setOrder] = useState('first')
     
     const gainRef = useRef(null);
     const tauRef = useRef(null);
+    const ksiRef = useRef(null);
+    const omnRef = useRef(null);
     const samplingRef = useRef(null);
 
     const sendRequest = () => {
@@ -27,7 +32,9 @@ function SideBar(props) {
                 Kp: parseFloat(props.kp),
                 Ki: parseFloat(props.ki),
                 Kd: parseFloat(props.kd),
-                type: controlType
+                type: controlType,
+                Ksi: order === 'second' ? ksi: null,
+                Omn: order === 'second' ? omn: null
             }),
         })
         .then(response => response.json())
@@ -41,6 +48,7 @@ function SideBar(props) {
             props.set_func1_den(data.closed.den);
             props.set_func2_num(data.system.num);
             props.set_func2_den(data.system.den);
+            props.set_lgr_limit(data.max + 0.5)
             
             let root_x = [];
             let root_y = [];
@@ -74,16 +82,20 @@ function SideBar(props) {
     useEffect(() => {
         sendRequest();
         // eslint-disable-next-line
-    }, [gain, tau, sampling, controlType, discrete, props.kp, props.ki, props.kd]);
+    }, [gain, tau, sampling, controlType, discrete, order, ksi, omn, props.kp, props.ki, props.kd]);
 
     useEffect(() => {
         const interval = setInterval(() => {
             const newGain = parseFloat(gainRef.current.value) || 0;
             const newTau = parseFloat(tauRef.current.value) || 0;
+            const newKsi = parseFloat(ksiRef.current.value) || 0;
+            const newOmn = parseFloat(omnRef.current.value) || 0;
             const newSampling = parseFloat(samplingRef.current.value) || 0;
 
             setGain(newGain);
             setTau(newTau);
+            setKsi(newKsi);
+            setOmn(newOmn);
             setSampling(newSampling);
 
         }, 100);
@@ -143,7 +155,7 @@ function SideBar(props) {
                         onKeyDown={(e) => { if (e.key === 'Delete') { opensubsubmenu('discretesidebarparameter', 'discrete'); setDiscrete(true); props.set_plot_radius(true); } else handleKeyDown(e, opensubsubmenu, 'discretesidebarparameter', 'discrete'); }}
                     >
                         Discreta
-                        <div className='sidebarparameter discretesidebarparameter'>
+                        <div className='sidebarparameter discretesidebarparameter' style={{display: discrete ? 'inherit' : 'none'}}>
                             Amostragem:
                             <input
                                 type='text'
@@ -166,14 +178,14 @@ function SideBar(props) {
                 >
                     Função de transferência
                     <div
-                        className='sidebaroptionsubtitle transfersubmenu'
+                        className={`sidebaroptionsubtitle transfersubmenu ${order === 'first' ? 'activesidebaroptionsubtitle' : ''}`}
                         id='firstorder'
-                        onClick={() => { opensubsubmenu('firstordersidebarparameter', 'firstorder'); }}
+                        onClick={() => { opensubsubmenu('firstordersidebarparameter', 'firstorder'); setOrder('first')}}
                         tabIndex={0}
-                        onKeyDown={(e) => handleKeyDown(e, opensubsubmenu, 'firstordersidebarparameter', 'firstorder')}
+                        onKeyDown={(e) => {handleKeyDown(e, opensubsubmenu, 'firstordersidebarparameter', 'firstorder');if(e.key ==='Delete')setOrder('first')}}
                     >
                         Primeira Ordem
-                        <div className='sidebarparameter firstordersidebarparameter'>
+                        <div className='sidebarparameter firstordersidebarparameter ' style={{display: order === 'first' ? 'inherit': 'none'}}>
                             Ganho:
                             <input
                                 type='text'
@@ -184,7 +196,7 @@ function SideBar(props) {
                                 ref={gainRef}
                             />
                         </div>
-                        <div className='sidebarparameter firstordersidebarparameter'>
+                        <div className='sidebarparameter firstordersidebarparameter' style={{display: order === 'first' ? 'inherit': 'none'}}>
                             Tau:
                             <input
                                 type='text'
@@ -193,6 +205,37 @@ function SideBar(props) {
                                 className='sidebarinput'
                                 tabIndex={0}
                                 ref={tauRef}
+                            />
+                        </div>
+                    </div>
+                    <div
+                        className={`sidebaroptionsubtitle transfersubmenu ${order === 'second' ? 'activesidebaroptionsubtitle' : ''}`}
+                        id='secondorder'
+                        onClick={() => { opensubsubmenu('secondordersidebarparameter', 'secondorder'); setOrder('second') }}
+                        tabIndex={0}
+                        onKeyDown={(e) => {handleKeyDown(e, opensubsubmenu, 'secondordersidebarparameter', 'secondorder'); if(e.key === 'Delete')setOrder('second')}}
+                    >
+                        Segunda Ordem
+                        <div className='sidebarparameter secondordersidebarparameter' style={{display: order === 'second' ? 'inherit': 'none'}}>
+                            Ksi:
+                            <input
+                                type='text'
+                                defaultValue={ksi}
+                                onChange={(e) => handleInputChange(e, setKsi)}
+                                className='sidebarinput'
+                                tabIndex={0}
+                                ref={ksiRef}
+                            />
+                        </div>
+                        <div className='sidebarparameter secondordersidebarparameter' style={{display: order === 'second' ? 'inherit': 'none'}}>
+                            Omn:
+                            <input
+                                type='text'
+                                defaultValue={omn}
+                                onChange={(e) => handleInputChange(e, setOmn)}
+                                className='sidebarinput'
+                                tabIndex={0}
+                                ref={omnRef}
                             />
                         </div>
                     </div>

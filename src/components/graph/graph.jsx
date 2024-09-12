@@ -14,7 +14,7 @@ const CircleBackgroundPlugin = {
     const { left, top, right, bottom } = chartArea;
     const width = right - left;
     const height = bottom - top;
-    const radius = Math.min(width, height) / 4;
+    const radius = Math.min(width, height) / (options.lgr_limit*2);
     const centerX = (left + right) / 2;
     const centerY = (top + bottom) / 2;
 
@@ -42,7 +42,7 @@ const CustomPointLabelsPlugin = {
         if (label) {
           ctx.save();
           ctx.font = '10px Arial';
-          ctx.fillStyle = 'black';
+          ctx.fillStyle = 'rgba(237,156,33,1)';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(label, point.x, point.y);
@@ -68,6 +68,7 @@ function Graph({
   scale = true,
   radius,
   pointLabels = [], 
+  lgr_limit,
 }) {
   const truncateToDecimals = (num, decimals) => parseFloat(num.toFixed(decimals));
 
@@ -125,7 +126,7 @@ function Graph({
       customPointLabels: {
         pointLabels: pointLabels.length === xData.length ? pointLabels : null,
       },
-      circleBackground: radius ? { radius } : null,
+      circleBackground: radius ? { radius, lgr_limit } : null,
     },
     scales: {
       x: {
@@ -134,8 +135,8 @@ function Graph({
           display: true,
           text: xAxisLabel,
         },
-        min: scale === false ? -2 : undefined, 
-        max: scale === false ? 2 : undefined,  
+        min: scale === false ? lgr_limit ? -lgr_limit: -2 : undefined, 
+        max: scale === false ? lgr_limit ? lgr_limit: 2 : undefined,  
       },
       y: {
         type: scale === false ? 'linear' : 'linear', 
@@ -143,8 +144,8 @@ function Graph({
           display: true,
           text: yAxisLabel,
         },
-        min: scale === false ? -2 : undefined, 
-        max: scale === false ? 2 : undefined,  
+        min: scale === false ?  lgr_limit ? -lgr_limit: -2 : undefined, 
+        max: scale === false ?  lgr_limit ? lgr_limit: 2 : undefined,  
       },
     },
   };

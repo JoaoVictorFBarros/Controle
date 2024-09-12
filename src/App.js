@@ -29,6 +29,8 @@ function App() {
   const [func2_num, set_func2_num] = useState();
   const [func2_den, set_func2_den] = useState();
 
+  const [lgr_limit, set_lgr_limit] = useState(3);
+
   const [plot_radius, set_plot_radius] = useState(false);
 
   function simulateKeyInput(key) {
@@ -55,9 +57,9 @@ function App() {
     const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:5000/leituras');
-        setKp(response.data.P[0]);
-        setKi(response.data.P[1]);
-        setKd(response.data.P[2]);
+        setKp(response.data.P[0]*3);
+        setKi(response.data.P[1]*3);
+        setKd(response.data.P[2]*3);
 
         let key = response.data.T;
         if (typeof(key) === 'string'){
@@ -72,7 +74,6 @@ function App() {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Styles for visibility
   const circleStyle = plot_radius ? {} : { display: 'none' };
   const nonCircleStyle = plot_radius ? { display: 'none' } : {};
 
@@ -95,6 +96,8 @@ function App() {
         set_root_y={set_root_y} 
         set_symbols={set_symbols} 
         set_plot_radius={set_plot_radius} 
+
+        set_lgr_limit = {set_lgr_limit}
       />
       <div className='workspace'>
         <div className='transferfunctions'>
@@ -117,7 +120,7 @@ function App() {
             title="Resposta ao degrau"
             xAxisLabel="Tempo (s)"
             yAxisLabel="Amplitude"
-            lineColor='rgba(255,0,0,1)'
+            lineColor='rgba(33,145,237,1)'
             xData={step_x}
             yData={step_y}
           />
@@ -127,7 +130,7 @@ function App() {
               title="Lugar das raízes"
               xAxisLabel="Real"
               yAxisLabel="Imaginário"
-              lineColor='rgba(255,0,0,0)'
+              lineColor='rgba(33,145,237,1)'
               pointRadius={2}
               xData={root_x}
               yData={root_y}
@@ -135,6 +138,8 @@ function App() {
               printLine={false}
               scale={false}
               pointLabels={symbols}
+
+              lgr_limit = {lgr_limit}
             />
           </div>
           <div style={nonCircleStyle}>
@@ -143,7 +148,7 @@ function App() {
               title="Lugar das raízes"
               xAxisLabel="Real"
               yAxisLabel="Imaginário"
-              lineColor='rgba(255,0,0,0)'
+              lineColor='rgba(33,145,237,1)'
               pointRadius={2}
               xData={root_x}
               yData={root_y}
@@ -151,6 +156,8 @@ function App() {
               printLine={false}
               scale={false}
               pointLabels={symbols}
+
+              lgr_limit = {lgr_limit}
             />
           </div>
           <div className='bode'>
@@ -159,7 +166,7 @@ function App() {
               title="Diagrama de Bode"
               xAxisLabel=""
               yAxisLabel="Magnitude (dB)"
-              lineColor='rgba(0,0,255,1)'
+              lineColor='rgba(33,145,237,1)'
               xData={bode_x}
               yData={bode_mag}
             />
@@ -168,7 +175,7 @@ function App() {
               title=""
               xAxisLabel="Frequência (rad/s)"
               yAxisLabel="Fase (deg)"
-              lineColor='rgba(0,0,255,1)'
+              lineColor='rgba(237,156,33,1)'
               xData={bode_x}
               yData={bode_phase}
             />
